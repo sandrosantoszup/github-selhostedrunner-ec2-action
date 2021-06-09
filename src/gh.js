@@ -23,7 +23,7 @@ async function getRegistrationToken() {
 
   try {
     const response = await octokit.request('POST /repos/{owner}/{repo}/actions/runners/registration-token', config.githubContext);
-  core.info('O token de registro do runner tá na mão truta. Tenha fé no GitHub que ele é justo.');
+    core.info('O token de registro do runner tá na mão truta. Tenha fé no GitHub que ele é justo.');
     return response.data.token;
   } catch (error) {
     core.error('O GitHub não passou o token de registro do runner pra nós. Com ele o papo é reto irmão, reveja o seu proceder');
@@ -53,13 +53,13 @@ async function removeRunner() {
 
 async function waitForRunnerRegistered(label) {
   //TODO: Transformar os limiares de espera do runner em parâmetros da ação
-  const timeoutMinutes = 5;
+  const timeoutMinutes = 10;
   const retryIntervalSeconds = 10;
   const quietPeriodSeconds = 30;
   let waitSeconds = 0;
 
   core.info(`Esperando ${quietPeriodSeconds}s pela noivinha EC2 ser registrada como runner no GitHub`);
-  await new Promise(r => setTimeout(r, quietPeriodSeconds * 1000));
+  await new Promise((r) => setTimeout(r, quietPeriodSeconds * 1000));
   core.info(`A cada ${retryIntervalSeconds}s eu colo na porta pra ver se ela já chegou`);
 
   return new Promise((resolve, reject) => {
@@ -69,7 +69,9 @@ async function waitForRunnerRegistered(label) {
       if (waitSeconds > timeoutMinutes * 60) {
         core.error('Melou o registro do runner na GitHub! Espiritos zombeteiros?');
         clearInterval(interval);
-        reject(`Esse runner tá igual noiva dos tempos antigos, atrasando a vida do parceiro já na porta da igreja! Mais que ${timeoutMinutes} minutos já é desaforo`);
+        reject(
+          `Esse runner tá igual noiva dos tempos antigos, atrasando a vida do parceiro já na porta da igreja! Mais que ${timeoutMinutes} minutos já é desaforo`
+        );
       }
 
       if (runner && runner.status === 'online') {
